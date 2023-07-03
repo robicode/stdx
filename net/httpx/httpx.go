@@ -3,7 +3,7 @@
 package httpx
 
 import (
-	"log"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -47,10 +47,9 @@ type QValue struct {
 	Quality float64
 }
 
-// The maximum number of parts a request can contain. Accepting too many part
-// can lead to the server running out of file handles.
-// Set to `0` for no limit.
-const MultipartPartLimit int = 128
+func (q QValue) String() string {
+	return fmt.Sprintf("Value: '%s'; Quality: %f", q.Value, q.Quality)
+}
 
 // QValues parses a Q-Value header and returns a set of value-quality
 // pairs.
@@ -58,26 +57,26 @@ func QValues(header string) []QValue {
 	if len(header) == 0 {
 		return nil
 	}
+
 	parts := stringx.Split(header, regexp.MustCompile(`\s*,\s*`))
 	var values []QValue
+	var quality float64
 
 	for _, part := range parts {
-		valueParams := stringx.Split(part, `\s*;\s*`, 2)
-		if valueParams == nil || len(valueParams) < 2 {
-			continue
+		var value, params string
+		valueParams := stringx.Split(part, regexp.MustCompile(`\s*;\s*`))
+		value = valueParams[0]
+		if len(valueParams) > 1 {
+			params = valueParams[1]
 		}
-		value := valueParams[0]
-		parameters := valueParams[1]
-		quality := 1.0
-		md := regexp.MustCompile(`\Aq=([\d.]+)`).FindStringSubmatch(parameters)
-		if md == nil || len(md) != 1 {
-			continue
+
+		md := regexp.MustCompile(`\Aq=([\d.]+)`).FindStringSubmatch(params)
+		if len(md) == 2 {
+			quality, _ = strconv.ParseFloat(md[1], 64)
+		} else {
+			quality = 1.0
 		}
-		quality, err := strconv.ParseFloat(md[0], 64)
-		if err != nil {
-			log.Printf("quality is not a valid floating point number: %v", md[1])
-			continue
-		}
+
 		qv := QValue{
 			Value:   value,
 			Quality: quality,
