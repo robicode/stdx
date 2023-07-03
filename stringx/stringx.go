@@ -194,6 +194,7 @@ func InsertRunes(s string, p int, rs ...rune) string {
 }
 
 // IsASCII returns true if s consists entirely of ASCII characters.
+// Pulled straight from stdlib and exported.
 func IsASCII(s string) bool {
 	for i := 0; i < len(s); i++ {
 		c := s[i]
@@ -305,6 +306,32 @@ func Scrub(str string, repl ...interface{}) string {
 //
 // When the input str is empty an empty Array is returned as the string is
 // considered to have no fields to split.
+//
+//	Split(" now's  the time ")                 // []string{"now's", "the", "time"}
+//	Split(" now's  the time ", ' ')            // []string{"now's", "the", "time"}
+//
+//	re := regexp.MustCompile(` `)
+//	Split(" now's  the time", re)              // []string{"", "now's", "", "the", "time"}
+//
+//	re = regexp.MustCompile(`,\s*`)
+//	Split("1, 2.34,56, 7", re)                 // []string{"1", "2.34", "56", "7"}
+//
+//	re = regexp.MustCompile(``)
+//	Split("hello", re)                         // []string{"h", "e", "l", "l", "o"}
+//	Split("hello", re, 3)                      // []string{"h", "e", "llo"}
+//
+//	re = regexp.MustCompile(`\s*`)
+//	Split("hi mom", re))                       // []string{"h", "i", "m", "o", "m"}
+//
+//	Split("mellow yellow", "ello")             // []string{"m", "w y", "w"}
+//	Split("1,2,,3,4,,", ",")                   // []string{"1", "2", "", "3", "4"}
+//	Split("1,2,,3,4,,", ",", 4)                // []string{"1", "2", "", "3,4,,"}
+//	Split("1,2,,3,4,,", ",", -4)               // []string{"1", "2", "", "3", "4", "", ""}
+//
+//	re = regexp.MustCompile(`(:)()()`)
+//	Split("1:2:3", re, 2)                      // []string{"1", ":", "", "", "2:3"}
+//
+//	Split("", ",", -1)                         // []string{}
 //
 // Currently does not support the block version.
 func Split(s string, pattern interface{}, limit ...int) []string {
