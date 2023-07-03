@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This module uses code from https://github.com/huandu/xstrings which is also
+The stringx module uses code from https://github.com/huandu/xstrings which is also
 licensed under the MIT license:
 
 The MIT License (MIT)

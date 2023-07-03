@@ -3,7 +3,12 @@
 package httpx
 
 import (
+	"log"
 	"net/url"
+	"regexp"
+	"strconv"
+
+	"github.com/robicode/stdx/stringx"
 )
 
 // URI escapes. (CGI style space to +)
@@ -37,11 +42,47 @@ func Unescape(s string) string {
 	return str
 }
 
+type QValue struct {
+	Value   string
+	Quality float64
+}
+
 // The maximum number of parts a request can contain. Accepting too many part
 // can lead to the server running out of file handles.
 // Set to `0` for no limit.
 const MultipartPartLimit int = 128
 
-func QValues(header string) {
+// QValues parses a Q-Value header and returns a set of value-quality
+// pairs.
+func QValues(header string) []QValue {
+	if len(header) == 0 {
+		return nil
+	}
+	parts := stringx.Split(header, regexp.MustCompile(`\s*,\s*`))
+	var values []QValue
 
+	for _, part := range parts {
+		valueParams := stringx.Split(part, `\s*;\s*`, 2)
+		if valueParams == nil || len(valueParams) < 2 {
+			continue
+		}
+		value := valueParams[0]
+		parameters := valueParams[1]
+		quality := 1.0
+		md := regexp.MustCompile(`\Aq=([\d.]+)`).FindStringSubmatch(parameters)
+		if md == nil || len(md) != 1 {
+			continue
+		}
+		quality, err := strconv.ParseFloat(md[0], 64)
+		if err != nil {
+			log.Printf("quality is not a valid floating point number: %v", md[1])
+			continue
+		}
+		qv := QValue{
+			Value:   value,
+			Quality: quality,
+		}
+		values = append(values, qv)
+	}
+	return values
 }

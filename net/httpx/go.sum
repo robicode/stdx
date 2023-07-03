@@ -1,0 +1,4 @@
+github.com/huandu/xstrings v1.4.0 h1:D17IlohoQq4UcpqD7fDk80P7l+lwAmlFaBHgOipl2FU=
+github.com/huandu/xstrings v1.4.0/go.mod h1:y5/lhBue+AyNmUVz9RLU9xbLR0o4KIIExikq4ovT0aE=
+github.com/robicode/stdx/stringx v0.0.0-20230703132805-be4014a001ae h1:j10Zj9PkdUc7XRjVhL2CluFLPD5fVuO9x9ECP8WVbv4=
+github.com/robicode/stdx/stringx v0.0.0-20230703132805-be4014a001ae/go.mod h1:rR2lkIbUTzP0B/+3GjCHUJDHIH31+AayRNNfEYTMELI=
