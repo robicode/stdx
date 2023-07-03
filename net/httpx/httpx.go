@@ -42,9 +42,26 @@ func Unescape(s string) string {
 	return str
 }
 
+// A QValue represents a quality value header element.
+// Used by QValues to return values with their quality
+// preferences.
 type QValue struct {
 	Value   string
 	Quality float64
+}
+
+type QualityValues []QValue
+
+func (q QualityValues) Len() int {
+	return len(q)
+}
+
+func (q QualityValues) Swap(i, j int) {
+	q[i], q[j] = q[j], q[i]
+}
+
+func (q QualityValues) Less(i, j int) bool {
+	return q[i].Quality < q[j].Quality
 }
 
 func (q QValue) String() string {

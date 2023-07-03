@@ -26,6 +26,10 @@ type qvDiff struct {
 }
 
 func checkQValues(t *testing.T, expected, actual []QValue) []qvDiff {
+	if len(expected) != len(actual) {
+		t.Errorf("expected length of expected (%d) to match actual (%d) values.", len(expected), len(actual))
+		return []qvDiff{}
+	}
 	var errors []qvDiff
 	for i, value := range expected {
 		if value.Value != actual[i].Value {

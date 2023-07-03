@@ -19,5 +19,4 @@ Some things that remain:
 * More tests are always good
 * Optimizations (maybe?)
 
-I make no claims of being an expert at optimization, and there may well be evidence herein. If you find something that can be done better, a case where a func
-
+I make no claims of being an expert at optimization, and there may well be evidence herein. If you find something that can be done better, a case where a function fails where it shouldn't, or any other issue, feel free to submit an issue (a PR is even better!) once I open up the issues tracker.
