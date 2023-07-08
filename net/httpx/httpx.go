@@ -133,9 +133,7 @@ func GetByteRanges(rangeHeader string, size int64) []Range {
 
 	specs := stringx.Split(matches[1], regexp.MustCompile(`,\s*`))
 
-	var (
-		ranges []Range
-	)
+	var ranges []Range
 
 	for _, rangeSpec := range specs {
 		rs := regexp.MustCompile(`(\d*)-(\d*)`).FindStringSubmatch(rangeSpec)
