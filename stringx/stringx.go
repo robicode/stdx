@@ -20,21 +20,50 @@ const (
 	splitTypeUnknown
 )
 
+// Compares self and other_string, ignoring case, and returning
+// -1 if other_string is larger, 0 if the two are equal, or
+// - 1 if other_string is smaller.
+//
+//	CaseCmp("foo", "foo")        // 0
+//	CaseCmp("foo", "food")       // -1
+//	CaseCmp("food", "foo")       // 1
+//	CaseCmp("FOO", "foo")        // 0
+//	CaseCmp("foo", "FOO")        // 0
+func CaseCmp(str, other string) int {
+	if len(str) > len(other) {
+		return 1
+	} else if len(str) < len(other) {
+		return -1
+	} else if strings.EqualFold(str, other) {
+		return 0
+	}
+
+	i := 0
+	for ; i < len(str) && i < len(other); i++ {
+		if str[i] > other[i] {
+			return 1
+		} else if str[i] < other[i] {
+			return -1
+		}
+	}
+	return 0
+}
+
 // Centers str in width.  If width is greater than the length of str,
 // returns a new String of length width with str centered and padded with
-// padstr; otherwise, returns str.
+// pad; otherwise, returns str.
 //
 //	Center("hello", 4)            // "hello"
 //	Center("hello", 20)           // "       hello        "
 //	Center("hello", 20, "123")    // "1231231hello12312312"
-func Center(s string, length int, pad ...string) string {
+func Center(s string, width int, pad ...string) string {
 	var _pad string
 	if pad == nil || len(pad) == 0 {
 		_pad = " "
 	} else {
 		_pad = pad[0]
 	}
-	return xstrings.Center(s, length, _pad)
+	return xstrings.Center(s, width, _pad)
 }
 
 // Each other_str parameter defines a set of characters to count.  The
@@ -58,7 +87,7 @@ func Center(s string, length int, pad ...string) string {
 //	Count(str, "\\")                 // 2
 //	Count(str, "\\A")                // 0
 //	Count(str, "A-\\w")              // 3
-func Count(str string, pattern ...string) int {
+func Count(str string, other_str ...string) int {
 	panic("Not yet implemented!")
 }
 
@@ -70,8 +99,6 @@ func Count(str string, pattern ...string) int {
 //	Delete("hello", "lo")                 // "he"
 //	Delete("hello", "aeiou", "^e")        // "hell"
 //	Delete("hello", "ej-m")               // "ho"
-//
-// Note that currently the third example is broken as per test.
 func Delete(s string, pattern ...string) string {
 	if pattern == nil || len(pattern) == 0 {
 		return s
@@ -91,6 +118,18 @@ func Delete(s string, pattern ...string) string {
 		return string(bytes)
 	}
 	return s
+}
+
+// Passes each character in str to the given function
+func EachRune(str string, block func(r rune)) {
+	if block == nil {
+		return
+	}
+	for str != "" {
+		r, rsz := utf8.DecodeRuneInString(str)
+		block(r)
+		str = str[rsz:]
+	}
 }
 
 // FormatStrings takes a []string and returns a string similar to that
@@ -113,7 +152,7 @@ func FormatStrings(arr []string) string {
 
 // Insert Inserts the given other string into str; returns the new string.
 //
-// If the Integer index is positive or zero, inserts other_string at offset index:
+// If the Integer index is positive or zero, inserts other at offset index:
 //
 //	Insert("foo", 1, "bar")            // "fbaroo"
 //
@@ -164,6 +203,9 @@ func Insert(str string, index int, other string) string {
 func InsertRune(s string, r rune, p int) string {
 	if p > len(s) {
 		p = len(s)
+	}
+	if p < 0 {
+		p = len(s) + p + 1
 	}
 	bytes := []byte(s[:p])
 	bytes = utf8.AppendRune(bytes, r)
@@ -443,13 +485,13 @@ func Split(s string, pattern interface{}, limit ...int) []string {
 //	Squeeze("yellow moon", "")             // "yelow mon"
 //	Squeeze("  now   is  the", "m-z")      // " now is the"
 //	Squeeze("putters shoot balls", " ")    // "puters shot balls"
-func Squeeze(s string, pattern ...string) string {
+func Squeeze(s string, other ...string) string {
 	var pat string
 
-	if pattern == nil || len(pattern) == 0 {
+	if other == nil || len(other) == 0 {
 		pat = ""
 	} else {
-		pat = pattern[0]
+		pat = other[0]
 	}
 
 	return xstrings.Squeeze(s, pat)
@@ -550,4 +592,35 @@ func reSplit(s string, re *regexp.Regexp, n int) []string {
 	}
 
 	return strings
+}
+
+// Decodes str (which may contain binary data) according to the
+// format string, returning an array of each value extracted. The format
+// string consists of a sequence of single-character directives, summarized
+// in the table at the end of this entry. Each directive may be followed by
+// a number, indicating the number of times to repeat with this directive.
+// An asterisk (“*”) will use up all remaining elements. The directives
+// sSiIlL may each be followed by an underscore (“_”) or exclamation mark
+// (“!”) to use the underlying platform's native size for the specified
+// type; otherwise, it uses a platform-independent consistent size. Spaces
+// are ignored in the format string.
+//
+// Note that unlike the Ruby version of this function, this function always returns
+// a slice of []string, because as far as I know Go does not support variable types
+// in the same slice.
+//
+//	Unpack("abc \0\0abc \0\0", "A6Z6")          // []string{"abc", "abc "}
+//	Unpack("abc \0\0", "a3a3")                  // []string{"abc", " \000\000"}
+//	Unpack("abc \0abc \0", "Z*Z*")              // []string{"abc ", "abc "}
+//	Unpack("aa", "b8B8")                        // []string{"10000110", "01100001"}
+//	Unpack("aaa", "h2H2c")                      // []string{"16", "61", "97"}
+//	Unpack("\xfe\xff\xfe\xff", "sS")            // []string{"-2", "65534"}
+//	Unpack("now=20is", "M*")                    // []string{"now is"}
+//	Unpack("whole", "xax2aX2aX1aX2a")           // []string{"h", "e", "l", "l", "o"}
+//
+// The README for this package summarizes the various formats. Note that unlike the Ruby
+// version of this function, we always return a slice of []string, because as far as I know
+// Go does not support multiple variable types in the same slice.
+func Unpack(str, format string) []string {
+	return nil
 }

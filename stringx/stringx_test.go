@@ -9,6 +9,33 @@ import (
 
 var errors int = 0
 
+func Test_CaseCmp(t *testing.T) {
+	if result := CaseCmp("foo", "foo"); result != 0 {
+		t.Errorf("expected result to be 0 but was %d", result)
+	}
+	if result := CaseCmp("foo", "food"); result != -1 {
+		t.Errorf("expected result to be 0 but was %d", result)
+	}
+	if result := CaseCmp("food", "foo"); result != 1 {
+		t.Errorf("expected result to be 0 but was %d", result)
+	}
+	if result := CaseCmp("foo", "FOO"); result != 0 {
+		t.Errorf("expected result to be 0 but was %d", result)
+	}
+	if result := CaseCmp("FOO", "foo"); result != 0 {
+		t.Errorf("expected result to be 0 but was %d", result)
+	}
+	if result := CaseCmp("foo", "fod"); result != 1 {
+		t.Errorf("expected result to be 0 but was %d", result)
+	}
+	if result := CaseCmp("fod", "foo"); result != -1 {
+		t.Errorf("expected result to be 0 but was %d", result)
+	}
+	if result := CaseCmp("foo", "foO"); result != 0 {
+		t.Errorf("expected result to be 0 but was %d", result)
+	}
+}
+
 func Test_Center(t *testing.T) {
 	if Center("hello", 4) != "hello" {
 		t.Error("expected Center() to return the original string")
@@ -20,6 +47,37 @@ func Test_Center(t *testing.T) {
 		t.Errorf("expected '1231231hello12312312' but got '%s'", Center("hello", 20, "123"))
 	}
 }
+
+// func Test_Chomp(t *testing.T) {
+// 	if result := Chomp("hello"); result != "hello" {
+// 		t.Errorf("expected 'hello' but got '%s'", result)
+// 	}
+// 	if result := Chomp("hello\n"); result != "hello" {
+// 		t.Errorf("expected 'hello' but got '%s'", result)
+// 	}
+// 	if result := Chomp("hello\r\n"); result != "hello" {
+// 		t.Errorf("expected 'hello' but got '%s'", result)
+// 	}
+// 	if result := Chomp("hello\n\r"); result != "hello\n" {
+// 		t.Errorf("expected 'hello\\n' but got '%s' (%d)", result, len(result))
+// 	}
+// 	if result := Chomp("hello\r"); result != "hello" {
+// 		t.Errorf("expected 'hello' but got '%s'", result)
+// 	}
+// 	if result := Chomp("hello \n there"); result != "hello \n there" {
+// 		t.Errorf("expected 'hello \\n there' but got '%s'", result)
+// 	}
+// 	if result := Chomp("hello", "llo"); result != "he" {
+// 		t.Errorf("expected 'he' but got '%s'", result)
+// 	}
+// 	if result := Chomp("hello\r\n\r\n", ""); result != "hello" {
+// 		t.Errorf("expected 'hello' but got '%s' of length %d", result, len(result))
+// 	}
+
+// 	if result := Chomp("hello\r\n\r\r\n", ""); result != "hello\r\n\r" {
+// 		t.Errorf("expected 'hello\\r\\n\\r' but got '%s'", result)
+// 	}
+// }
 
 // func Test_Count(t *testing.T) {
 // TODO implement a Ruby-style Count() function
@@ -74,6 +132,16 @@ func Test_Delete(t *testing.T) {
 	}
 	if Delete("hello", "ej-m") != "ho" {
 		t.Errorf("expected 'hell' but got '%s'", Delete("hello", "ej-m"))
+	}
+}
+
+func Test_EachRune(t *testing.T) {
+	var out string
+	EachRune("hello", func(r rune) {
+		out = InsertRune(out, r, -1)
+	})
+	if out != "hello" {
+		t.Errorf("expected 'hello' but got '%s'", out)
 	}
 }
 
