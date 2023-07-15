@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/huandu/xstrings"
+	"github.com/wallclockbuilder/stringutil"
 )
 
 type splitType int
@@ -64,6 +65,30 @@ func Center(s string, width int, pad ...string) string {
 		_pad = pad[0]
 	}
 	return xstrings.Center(s, width, _pad)
+}
+
+// Returns a new String with the given record separator removed from the
+// end of str (if present). If using the default separator, then chomp also
+// removes carriage return characters (that is it will remove \n, \r, and \r\n).
+// If $/ is an empty string, it will remove all trailing newlines from the string.
+//
+//	Chomp("hello")               // "hello"
+//	Chomp("hello\n")             // "hello"
+//	Chomp("hello\r\n")           // "hello"
+//	Chomp("hello\n\r")           // "hello\n"
+//	Chomp("hello\r")             // "hello"
+//	Chomp("hello \n there")      // "hello \n there"
+//	Chomp("hello", "llo")        // "he"
+//	Chomp("hello\r\n\r\n", "")   // "hello"
+//	Chomp("hello\r\n\r\r\n", "") // "hello\r\n\r"`
+func Chomp(str string, separator ...string) string {
+	var sep string
+	if separator == nil || len(separator) == 0 {
+		sep = ""
+	} else {
+		sep = separator[0]
+	}
+	return stringutil.Chomp(str, sep)
 }
 
 // Chr returns a string containing the first rune of str.

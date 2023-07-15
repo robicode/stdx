@@ -6,6 +6,8 @@ Like the standard library, we assume all strings are UTF-8 encoded.
 
 This package uses [Huan Du's xstrings library](https://github.com/huandu/xstrings) for much of the functionality, but this module tries to be compatible with the [Ruby language](https://ruby-lang.org) where possible, and thus many functions have been extended, (e.g. with default parameters or modes of operation).
 
+Some functionality is also pulled from [Mawuli Kofi Adzoe's stringutil](https://github.com/wallclockbuilder/stringutil) package and modified for this library.
+
 Where a function can be found in other languages' standard libraries, I try to stay close to the Ruby syntax and features, as I am most familiar with that language and the features of its standard library are quite robust.
 
 ## Functions
@@ -31,6 +33,33 @@ returns a new string of length `width` with `str` centered and padded with
 Center("hello", 4)            // "hello"
 Center("hello", 20)           // "       hello        "
 Center("hello", 20, "123")    // "1231231hello12312312"
+```
+
+### Chomp
+
+Returns a new String with the given record separator removed from the
+end of str (if present). If using the default separator, then chomp also 
+removes carriage return characters (that is it will remove \n, \r, and \r\n).
+If $/ is an empty string, it will remove all trailing newlines from the string.
+
+```go
+Chomp("hello")               // "hello"
+Chomp("hello\n")             // "hello"
+Chomp("hello\r\n")           // "hello"
+Chomp("hello\n\r")           // "hello\n"
+Chomp("hello\r")             // "hello"
+Chomp("hello \n there")      // "hello \n there"
+Chomp("hello", "llo")        // "he"
+Chomp("hello\r\n\r\n", "")   // "hello"
+Chomp("hello\r\n\r\r\n", "") // "hello\r\n\r"
+```
+
+### Chr
+
+Chr returns a string containing the first rune of str.
+
+```go
+Chr("foo")    // "f"
 ```
 
 ### Count
@@ -291,7 +320,12 @@ Squeeze("putters shoot balls", " ")    // "puters shot balls"
 
 ## License
 
-MIT
+This package is licensed under MIT.
+
+However, the code does use two external libraries:
+
+* [Huan Du's xstrings library](https://github.com/huandu/xstrings) is used for some functionality, and it is also licensed under MIT. Please see the LICENSE file for details.
+* [Mawuli Kofi Adzoe's stringutil](https://github.com/wallclockbuilder/stringutil) package is used for some functionality, and it is licensed under a BSD 2-clause license. See the LICENSE file for details.
 
 ## TODO & Contributing
 

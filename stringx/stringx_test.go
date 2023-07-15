@@ -48,36 +48,36 @@ func Test_Center(t *testing.T) {
 	}
 }
 
-// func Test_Chomp(t *testing.T) {
-// 	if result := Chomp("hello"); result != "hello" {
-// 		t.Errorf("expected 'hello' but got '%s'", result)
-// 	}
-// 	if result := Chomp("hello\n"); result != "hello" {
-// 		t.Errorf("expected 'hello' but got '%s'", result)
-// 	}
-// 	if result := Chomp("hello\r\n"); result != "hello" {
-// 		t.Errorf("expected 'hello' but got '%s'", result)
-// 	}
-// 	if result := Chomp("hello\n\r"); result != "hello\n" {
-// 		t.Errorf("expected 'hello\\n' but got '%s' (%d)", result, len(result))
-// 	}
-// 	if result := Chomp("hello\r"); result != "hello" {
-// 		t.Errorf("expected 'hello' but got '%s'", result)
-// 	}
-// 	if result := Chomp("hello \n there"); result != "hello \n there" {
-// 		t.Errorf("expected 'hello \\n there' but got '%s'", result)
-// 	}
-// 	if result := Chomp("hello", "llo"); result != "he" {
-// 		t.Errorf("expected 'he' but got '%s'", result)
-// 	}
-// 	if result := Chomp("hello\r\n\r\n", ""); result != "hello" {
-// 		t.Errorf("expected 'hello' but got '%s' of length %d", result, len(result))
-// 	}
+func Test_Chomp(t *testing.T) {
+	if result := Chomp("hello"); result != "hello" {
+		t.Errorf("expected 'hello' but got '%s'", result)
+	}
+	if result := Chomp("hello\n"); result != "hello" {
+		t.Errorf("expected 'hello' but got '%s'", result)
+	}
+	if result := Chomp("hello\r\n"); result != "hello" {
+		t.Errorf("expected 'hello' but got '%s'", result)
+	}
+	if result := Chomp("hello\n\r"); result != "hello\n" {
+		t.Errorf("expected 'hello\\n' but got '%s' (%d)", result, len(result))
+	}
+	if result := Chomp("hello\r"); result != "hello" {
+		t.Errorf("expected 'hello' but got '%s'", result)
+	}
+	if result := Chomp("hello \n there"); result != "hello \n there" {
+		t.Errorf("expected 'hello \\n there' but got '%s'", result)
+	}
+	if result := Chomp("hello", "llo"); result != "he" {
+		t.Errorf("expected 'he' but got '%s'", result)
+	}
+	if result := Chomp("hello\r\n\r\n", ""); result != "hello" {
+		t.Errorf("expected 'hello' but got '%s' of length %d", result, len(result))
+	}
 
-// 	if result := Chomp("hello\r\n\r\r\n", ""); result != "hello\r\n\r" {
-// 		t.Errorf("expected 'hello\\r\\n\\r' but got '%s'", result)
-// 	}
-// }
+	if result := Chomp("hello\r\n\r\r\n", ""); result != "hello\r\n\r" {
+		t.Errorf("expected 'hello\\r\\n\\r' but got '%s'", result)
+	}
+}
 
 func Test_Count(t *testing.T) {
 	str := "hello world"
