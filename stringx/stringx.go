@@ -20,9 +20,9 @@ const (
 	splitTypeUnknown
 )
 
-// Compares self and other_string, ignoring case, and returning
-// -1 if other_string is larger, 0 if the two are equal, or
-// - 1 if other_string is smaller.
+// Compares self and other string, ignoring case, and returns
+// -1 if other string is larger, 0 if the two are equal, or
+// - 1 if other string is smaller.
 //
 //	CaseCmp("foo", "foo")        // 0
 //	CaseCmp("foo", "food")       // -1
@@ -245,6 +245,50 @@ func IsASCII(s string) bool {
 		}
 	}
 	return true
+}
+
+// MatchingStringsets returns true if the two []string slices are equal
+// otherwise returns false.
+func MatchingStringsets(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := 0; i < len(a); i++ {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// Partition Searches sep or pattern (regexp) in the string and
+// returns the part before it, the match, and the part after it. If it is
+// not found, returns two empty strings and str.
+//
+//	Partition("hello", "l")                      // []string{"he", "l", "lo"}
+//	Partition("hello", "x")                      // []string{"hello", "", ""}
+//	Partition("hello", regexp.MustCompile(`.l`)) // []string{"h", "el", "lo"}
+func Partition(str string, pat interface{}) []string {
+	if pat == nil {
+		return nil
+	}
+
+	if sep, ok := pat.(string); ok {
+		splits := Split(str, sep, 2)
+		if len(splits) < 2 {
+			return []string{str, "", ""}
+		}
+		return []string{splits[0], sep, splits[1]}
+	}
+	if sep, ok := pat.(*regexp.Regexp); ok {
+		match := sep.FindString(str)
+		idx := strings.Index(str, match)
+		if idx == -1 {
+			return []string{str, "", ""}
+		}
+		return []string{str[:idx], match, str[idx+len(match):]}
+	}
+	return nil
 }
 
 // If the string contains  any invalid byte sequences then replace invalid

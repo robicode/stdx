@@ -9,6 +9,18 @@ This package uses [Huan Du's xstrings library](https://github.com/huandu/xstring
 Where a function can be found in other languages' standard libraries, I try to stay close to the Ruby syntax and features, as I am most familiar with that language and the features of its standard library are quite robust.
 
 ## Functions
+### CaseCmp
+
+Compares self and other string, ignoring case, and returns -1 if other string is larger, 0 if the two are equal, or -1 if other string is smaller.
+
+```go
+CaseCmp("foo", "foo")        // 0
+CaseCmp("foo", "food")       // -1
+CaseCmp("food", "foo")       // 1
+CaseCmp("FOO", "foo")        // 0
+CaseCmp("foo", "FOO")        // 0
+```
+
 ### Center
 
 Centers `str` in `width`.  If `width` is greater than the length of `str`,
@@ -98,6 +110,17 @@ InsertRunes(str, 5, ',', ' ')                 // "hello, world"
 
 IsASCII returns true if s consists entirely of ASCII characters. Pulled straight from stdlib and exported.
 
+### Partition
+
+Partition Searches sep or pattern (regexp) in the string and
+returns the part before it, the match, and the part after it. If it is
+not found, returns two empty strings and str.
+
+```go
+Partition("hello", "l")                      // []string{"he", "l", "lo"}
+Partition("hello", "x")                      // []string{"hello", "", ""}
+Partition("hello", regexp.MustCompile(`.l`)) // []string{"h", "el", "lo"}
+```
 ### Scrub
 
 If the string contains any invalid byte sequences then replace invalid

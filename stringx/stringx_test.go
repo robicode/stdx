@@ -181,6 +181,18 @@ func Test_InsertRunes(t *testing.T) {
 	}
 }
 
+func Test_Partition(t *testing.T) {
+	if result := Partition("hello", "l"); !MatchingStringsets(result, []string{"he", "l", "lo"}) {
+		t.Errorf("expected result to be [\"he\", \"l\", \"lo\"], but was %s", FormatStrings(result))
+	}
+	if result := Partition("hello", "x"); !MatchingStringsets(result, []string{"hello", "", ""}) {
+		t.Errorf("expected result to be [\"hello\", \"\", \"\"], but was %s", FormatStrings(result))
+	}
+	if result := Partition("hello", regexp.MustCompile(`.l`)); !MatchingStringsets(result, []string{"h", "el", "lo"}) {
+		t.Errorf("expected result to be [\"h\", \"el\", \"lo\"], but was %s", FormatStrings(result))
+	}
+}
+
 func Test_Scrub(t *testing.T) {
 	// Test for no repl given
 	if result := Scrub("ab\uFFFDcd\xFF\xCEefg\xFF\xFC\xFD\xFAhijk"); result != "ab\uFFFDcd\uFFFDefg\uFFFDhijk" {
