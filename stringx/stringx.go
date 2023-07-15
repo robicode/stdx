@@ -247,23 +247,49 @@ func IsASCII(s string) bool {
 	return true
 }
 
-// MatchingStringsets returns true if the two []string slices are equal
+// MatchingStringsets returns true if the two []string or [][]string slices are equal
 // otherwise returns false.
-func MatchingStringsets(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := 0; i < len(a); i++ {
-		if a[i] != b[i] {
+func MatchingStringsets(a, b interface{}) bool {
+	if firstSet, ok := a.([]string); ok {
+		if secondSet, ok := b.([]string); ok {
+			if len(firstSet) != len(secondSet) {
+				return false
+			}
+			for i := 0; i < len(firstSet); i++ {
+				if firstSet[i] != secondSet[i] {
+					return false
+				}
+			}
+			return true
+		} else {
 			return false
 		}
 	}
-	return true
+	if firstSet, ok := a.([][]string); ok {
+		if secondSet, ok := b.([][]string); ok {
+			if len(firstSet) != len(secondSet) {
+				return false
+			}
+
+			for idx, aElems := range firstSet {
+				bElems := secondSet[idx]
+				for idx2, elem := range aElems {
+					if elem != bElems[idx2] {
+						return false
+					}
+				}
+			}
+		} else {
+			return false
+		}
+		return true
+	}
+	panic("unknown slice types")
 }
 
 // Partition Searches sep or pattern (regexp) in the string and
 // returns the part before it, the match, and the part after it. If it is
-// not found, returns two empty strings and str.
+// not found, returns str and two empty strings.
 //
 //	Partition("hello", "l")                      // []string{"he", "l", "lo"}
 //	Partition("hello", "x")                      // []string{"hello", "", ""}
@@ -287,6 +313,76 @@ func Partition(str string, pat interface{}) []string {
 			return []string{str, "", ""}
 		}
 		return []string{str[:idx], match, str[idx+len(match):]}
+	}
+	return nil
+}
+
+// Both forms iterate through str, matching the pattern (which may be
+// a *Regexp or a string). For each match, a result is generated and either
+// added to the result array or passed to the function. If the pattern
+// contains no groups, each individual result consists of the matched
+// string.  If the pattern contains groups, each individual result is
+// itself a slice containing one entry per group.
+//
+//	a := "cruel world"
+//	Scan(a, regexp.MustCompile(`\w+`))        // ["cruel", "world"]
+//	Scan(a, regexp.MustCompile(`...`))        // ["cru", "el ", "wor"]
+//	Scan(a, regexp.MustCompile(`(...)`))      // [["cru"], ["el "], ["wor"]]
+//	Scan(a, regexp.MustCompile(`(..)(..)`))   // [["cr", "ue"], ["l ", "wo"]]
+//
+// And when given a function:
+//
+//	Scan(a, regexp.MustCompile(`\w+`), func(match interface{}){
+//		...
+//		fmt.Printf("<<%s>> \n", match)
+//	})
+//
+// produces:
+//
+//	<<cruel>> <<world>>
+func Scan(str string, pattern interface{}, block ...func(match interface{})) interface{} {
+	var fn func(match interface{})
+
+	if block != nil && len(block) != 0 {
+		fn = block[0]
+	}
+
+	if pat, ok := pattern.(string); ok {
+		var result []string
+		var idx int
+		for {
+			idx = strings.Index(str, pat)
+			if idx == -1 {
+				break
+			}
+			if fn != nil {
+				fn(pat)
+			}
+			result = append(result, pat)
+			str = str[idx+len(pat):]
+		}
+		return result
+	}
+	if pat, ok := pattern.(*regexp.Regexp); ok {
+		var result [][]string
+		if pat.NumSubexp() == 0 {
+			matches := pat.FindAllString(str, -1)
+			if fn != nil {
+				for _, match := range matches {
+					fn(match)
+				}
+			}
+			return matches
+		} else {
+			matches := pat.FindAllStringSubmatch(str, -1)
+			for _, match := range matches {
+				if fn != nil {
+					fn(match)
+				}
+				result = append(result, match[1:])
+			}
+		}
+		return result
 	}
 	return nil
 }

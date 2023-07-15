@@ -121,6 +121,38 @@ Partition("hello", "l")                      // []string{"he", "l", "lo"}
 Partition("hello", "x")                      // []string{"hello", "", ""}
 Partition("hello", regexp.MustCompile(`.l`)) // []string{"h", "el", "lo"}
 ```
+
+### Scan
+
+Both forms iterate through str, matching the pattern (which may be
+a `*Regexp` or a string). For each match, a result is generated and either
+added to the result array or passed to the function. If the pattern
+contains no groups, each individual result consists of the matched
+string.  If the pattern contains groups, each individual result is
+itself a slice containing one entry per group.
+
+```go
+a := "cruel world"
+Scan(a, regexp.MustCompile(`\w+`))        // ["cruel", "world"]
+Scan(a, regexp.MustCompile(`...`))        // ["cru", "el ", "wor"]
+Scan(a, regexp.MustCompile(`(...)`))      // [["cru"], ["el "], ["wor"]]
+Scan(a, regexp.MustCompile(`(..)(..)`))   // [["cr", "ue"], ["l ", "wo"]]
+```
+And when given a function:
+
+```go
+Scan(a, regexp.MustCompile(`\w+`), func(match interface{}){
+	...
+	fmt.Printf("<<%s>> \n", match)
+})
+```
+
+produces:
+
+```
+<<cruel>> <<world>>
+```
+
 ### Scrub
 
 If the string contains any invalid byte sequences then replace invalid

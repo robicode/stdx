@@ -193,6 +193,44 @@ func Test_Partition(t *testing.T) {
 	}
 }
 
+func Test_Scan(t *testing.T) {
+	a := "cruel world"
+	if value, ok := Scan(a, regexp.MustCompile(`\w+`)).([]string); !ok {
+		t.Errorf("expected Scan to return a []string but returned a %T", value)
+		if !MatchingStringsets(value, []string{"cruel", "world"}) {
+			t.Errorf("expected value to be []string{\"cruel\", \"world\"}, but was %v", value)
+		}
+	}
+	if value, ok := Scan(a, regexp.MustCompile(`...`)).([]string); !ok {
+		t.Errorf("expected Scan to return a []string but returned a %T", value)
+		if !MatchingStringsets(value, []string{"cru", "el ", "wor"}) {
+			t.Errorf("expected value to be []string{\"cru\", \"el \", \"wor\"}, but was %v", value)
+		}
+	}
+	if value, ok := Scan(a, regexp.MustCompile(`(...)`)).([][]string); !ok {
+		t.Errorf("expected Scan to return a []string but returned a %T", value)
+		if !MatchingStringsets(value, [][]string{{"cru"}, {"el "}, {"wor"}}) {
+			t.Errorf("expected value to be [][]string{\"cru\"}, {\"el \"}, {\"wor\"}}, but was %v", value)
+		}
+	}
+	if value, ok := Scan(a, regexp.MustCompile(`(..)(..)`)).([][]string); !ok {
+		t.Errorf("expected Scan to return a [][]string but returned a %T", value)
+		if !MatchingStringsets(value, [][]string{{"cr", "ue"}, {"l ", "wo"}}) {
+			t.Errorf("incorrect output from Scan():\nExpected %v\nReceived:%v\n", [][]string{{"cr", "ue"}, {"l ", "wo"}}, value)
+		}
+	}
+
+	var out string
+	Scan(a, regexp.MustCompile(`\w+`), func(match interface{}) {
+		if m, ok := match.(string); ok {
+			out = out + fmt.Sprintf("<<%s>> ", m)
+		}
+	})
+	if out != "<<cruel>> <<world>> " {
+		t.Errorf("expected '%s' but got '%s'", "<<cruel>> <<world>> ", out)
+	}
+}
+
 func Test_Scrub(t *testing.T) {
 	// Test for no repl given
 	if result := Scrub("ab\uFFFDcd\xFF\xCEefg\xFF\xFC\xFD\xFAhijk"); result != "ab\uFFFDcd\uFFFDefg\uFFFDhijk" {
