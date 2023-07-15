@@ -79,46 +79,41 @@ func Test_Center(t *testing.T) {
 // 	}
 // }
 
-// func Test_Count(t *testing.T) {
-// TODO implement a Ruby-style Count() function
-// Note: Commented tests are not passing yet.
-// str := "hello world"
-// if Count(str, "lo") != 5 {
-// 	t.Errorf("expected Count() to be 5 but was %d", Count(str, "lo"))
-// }
+func Test_Count(t *testing.T) {
+	str := "hello world"
+	if Count(str, "lo") != 5 {
+		t.Errorf("expected Count() to be 5 but was %d", Count(str, "lo"))
+	}
+	if Count(str, "lo", "o") != 2 {
+		t.Errorf("expected Count() to be 2 but was %d", Count(str, "lo", "o"))
+	}
+	if Count(str, "hello", "^l") != 4 {
+		t.Errorf("expected Count() to be 4 but was %d", Count(str, "hello", "^l"))
+	}
 
-// xstrings does not support multiple patterns, as per the following two (failing) tests
-// and I haven't implemented a fix yet:
-// if Count(str, "lo", "o") != 2 {
-// 	t.Errorf("expected Count() to be 2 but was %d", Count(str, "lo", "o"))
-// }
-// if Count(str, "hello", "^l") != 4 {
-// 	t.Errorf("expected Count() to be 4 but was %d", Count(str, "hello", "^l"))
-// }
+	if Count(str, "ej-m") != 4 {
+		t.Errorf("expected Count() to be %d but was %d", 4, Count(str, "ej-m"))
+	}
 
-// if Count(str, "ej-m") != 4 {
-// 	t.Errorf("expected Count() to be %d but was %d", 4, Count(str, "ej-m"))
-// }
+	str = "hello^world"
+	if Count(str, "\\^aeiou") != 4 {
+		t.Errorf("expected Count() to be %d but was %d", 4, Count(str, "\\^aeiou"))
+	}
+	if Count(str, "a\\-eo") != 3 {
+		t.Errorf("expected Count() to be %d but was %d", 3, Count(str, "a\\-eo"))
+	}
 
-// str = "hello^world"
-// if Count(str, "\\^aeiou") != 4 {
-// 	t.Errorf("expected Count() to be %d but was %d", 4, Count(str, "\\^aeiou"))
-// }
-// if Count(str, "a\\-eo") != 3 {
-// 	t.Errorf("expected Count() to be %d but was %d", 3, Count(str, "a\\-eo"))
-// }
-
-// str = "hello world\\r\\n"
-// if Count(str, "\\") != 2 {
-// 	t.Errorf("expected Count('%s', '\\\\') to be %d but was %d", str, 2, Count(str, "\\"))
-// }
-// if Count(str, "\\A") != 0 {
-// 	t.Errorf("expected Count('%s', '\\\\A') to be %d but was %d", str, 0, Count(str, "\\A"))
-// }
-// if Count(str, "A-\\w") != 3 {
-// 	t.Errorf("expected Count('%s', 'A-\\\\w') to be %d but was %d", str, 3, Count(str, "A-\\w"))
-// }
-// }
+	str = "hello world\\r\\n"
+	if Count(str, "\\\\") != 2 {
+		t.Errorf("expected Count('%s', '\\\\') to be %d but was %d", str, 2, Count(str, "\\"))
+	}
+	if Count(str, "\\A") != 0 {
+		t.Errorf("expected Count('%s', '\\\\A') to be %d but was %d", str, 0, Count(str, "\\A"))
+	}
+	if Count(str, "A-\\\\w") != 3 {
+		t.Errorf("expected Count('%s', 'A-\\\\w') to be %d but was %d", str, 3, Count(str, "A-\\w"))
+	}
+}
 
 func Test_Delete(t *testing.T) {
 	if Delete("hello", "l", "lo") != "heo" {
@@ -132,6 +127,20 @@ func Test_Delete(t *testing.T) {
 	}
 	if Delete("hello", "ej-m") != "ho" {
 		t.Errorf("expected 'hell' but got '%s'", Delete("hello", "ej-m"))
+	}
+}
+
+func Test_DeleteMatchingRunes(t *testing.T) {
+	s := "hello world"
+	if result := DeleteMatchingRunes(s, 'l'); result != "heo word" {
+		t.Errorf("expected '%s' but got '%s'", "heo word", result)
+	}
+}
+
+func Test_DeleteRune(t *testing.T) {
+	s := "hello world"
+	if result := DeleteRune(s, 3); result != "helo world" {
+		t.Errorf("expected '%s' but got '%s'", "helo world", result)
 	}
 }
 

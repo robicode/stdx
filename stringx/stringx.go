@@ -66,6 +66,14 @@ func Center(s string, width int, pad ...string) string {
 	return xstrings.Center(s, width, _pad)
 }
 
+// Chr returns a string containing the first rune of str.
+//
+//	Chr("foo")    // "f"
+func Chr(str string) string {
+	r, _ := utf8.DecodeRuneInString(str)
+	return string(r)
+}
+
 // Each other_str parameter defines a set of characters to count.  The
 // intersection of these sets defines the characters to count in str.  Any
 // other_str that starts with a caret ^ is negated.  The sequence c1-c2
@@ -88,7 +96,27 @@ func Center(s string, width int, pad ...string) string {
 //	Count(str, "\\A")                // 0
 //	Count(str, "A-\\w")              // 3
 func Count(str string, other_str ...string) int {
-	panic("Not yet implemented!")
+	if other_str == nil || len(other_str) == 0 {
+		return 0
+	}
+	var keep, discard string
+
+	for _, others := range other_str {
+		r, rsz := utf8.DecodeRuneInString(others)
+		if r == '^' {
+			discard = others[rsz:]
+		} else {
+			keep = others
+		}
+	}
+
+	for _, r := range discard {
+		i := strings.IndexRune(keep, r)
+		if i != -1 {
+			keep = DeleteMatchingRunes(keep, r)
+		}
+	}
+	return xstrings.Count(str, keep)
 }
 
 // Returns a copy of str with all characters in the intersection of
@@ -118,6 +146,45 @@ func Delete(s string, pattern ...string) string {
 		return string(bytes)
 	}
 	return s
+}
+
+// DeleteMatchingRunes deletes all instances of the rune r from the given
+// string str.
+//
+//	DeleteMatchingRunes("hello", 'l')        // "heo"
+func DeleteMatchingRunes(str string, r rune) string {
+	var result []byte
+
+	for _, rn := range str {
+		if rn != r {
+			result = utf8.AppendRune(result, rn)
+		}
+	}
+	return string(result)
+}
+
+// DeleteRune deletes a single rune from string str
+// at the given index.
+//
+//	DeleteRune("hello", 3)        // "helo"
+//
+// Note that this may not always correspond to the actual byte
+// index as UTF-8 runes may span multiple bytes.
+func DeleteRune(str string, index int) string {
+	rc := utf8.RuneCountInString(str)
+	if index > rc {
+		return str
+	}
+
+	var result []byte
+	var i int = 0
+	for _, r := range str {
+		if i != index {
+			result = utf8.AppendRune(result, r)
+		}
+		i++
+	}
+	return string(result)
 }
 
 // Passes each character in str to the given function

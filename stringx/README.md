@@ -33,6 +33,34 @@ Center("hello", 20)           // "       hello        "
 Center("hello", 20, "123")    // "1231231hello12312312"
 ```
 
+### Count
+
+Each `other_str` parameter defines a set of characters to count.  The
+intersection of these sets defines the characters to count in `str`.  Any
+`other_str` that starts with a caret (^) is negated.  The sequence `c1-c2`
+means all characters between `c1` and `c2`.  The backslash character ("\") can
+be used to escape ^ or - and is otherwise ignored unless it appears at
+the end of a sequence or the end of a `other_str`.
+
+**Not Implemented Because:** The version in `xtrings` has a different algorithm for its pattern. It is just as valid a function, but I'm trying to stick with Ruby algorithms here. The version in stdlib doesn't support patterns at all.
+
+```go
+str := "hello world"
+Count(str, "lo")                 // 5
+Count(str, "lo", "o")            // 2
+Count(str, "hello", "^l")        // 4
+Count("hello", "ej-m")           // 4
+
+str = "hello^world"
+Count(str, "\\^aeiou")           // 4
+Count(str, "a\\-eo")             // 3
+
+str = "hello world\\r\\n"
+Count(str, "\\")                 // 2
+Count(str, "\\A")                // 0
+Count(str, "A-\\w")              // 3
+```
+
 ### Delete
 
 Returns a copy of `str` with all characters in the intersection of
@@ -45,6 +73,27 @@ Delete("hello", "lo")                 // "he"
 Delete("hello", "aeiou", "^e")        // "hell"
 Delete("hello", "ej-m")               // "ho"
 ```
+
+### DeleteMatchingRunes
+
+DeleteMatchingRunes deletes all instances of the rune r from the given
+string str.
+
+```go
+DeleteMatchingRunes("hello", 'l')        // "heo"
+```
+
+### DeleteRune
+
+DeleteRune deletes a single rune from string str
+at the given index.
+
+```go
+DeleteRune("hello", 3)        // "helo"
+```
+
+Note that this may not always correspond to the actual byte
+index as UTF-8 runes may span multiple bytes.
 
 ### FormatStrings
 
