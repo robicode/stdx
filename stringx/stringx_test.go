@@ -344,6 +344,49 @@ func Test_Squeeze(t *testing.T) {
 	}
 }
 
+func Test_Tr(t *testing.T) {
+	if result := Tr("hello", "el", "ip"); result != "hippo" {
+		t.Errorf("expected '%s' but got '%s'", "hippo", result)
+	}
+	if result := Tr("hello", "aeiou", "*"); result != "h*ll*" {
+		t.Errorf("expected '%s' but got '%s'", "h*ll*", result)
+	}
+	if result := Tr("hello", "aeiou", "AA*"); result != "hAll*" {
+		t.Errorf("expected '%s' but got '%s'", "hAll*", result)
+	}
+
+	if result := Tr("hello", "a-y", "b-z"); result != "ifmmp" {
+		t.Errorf("expected '%s' but got '%s'", "ifmmp", result)
+	}
+	if result := Tr("hello", "^aeiou", "*"); result != "*e**o" {
+		t.Errorf("expected '%s' but got '%s'", "*e**o", result)
+	}
+
+	if result := Tr("hello^world", "\\^aeiou", "*"); result != "h*ll**w*rld" {
+		t.Errorf("expected '%s' but got '%s'", "h*ll**w*rld", result)
+	}
+	if result := Tr("hello-world", "a\\-eo", "*"); result != "h*ll**w*rld" {
+		t.Errorf("expected '%s' but got '%s'", "h*ll**w*rld", result)
+	}
+
+	if result := Tr("hello\r\nworld", "\r", ""); result != "hello\nworld" {
+		t.Errorf("expected '%s' but got '%s'", "hello\nworld", result)
+	}
+	if result := Tr("hello\r\nworld", "\\r", ""); result != "hello\r\nwold" {
+		t.Errorf("expected '%s' but got '%s'", "hello\r\nwold", result)
+	}
+	if result := Tr("hello\r\nworld", "\\\r", ""); result != "hello\nworld" {
+		t.Errorf("expected '%s' but got '%s'", "hello\nworld", result)
+	}
+
+	if result := Tr("X['\\b']", `X\\`, ""); result != "['b']" {
+		t.Errorf("expected '%s' but got '%s'", "['b']", result)
+	}
+	if result := Tr("X['\\b']", "X-\\]", ""); result != "'b'" {
+		t.Errorf("expected '%s' but got '%s'", "'b'", result)
+	}
+}
+
 // expectMatchingSlices is a helper function that checks expected against actual slice returns
 // and prints detailed errors if any. A hastily done helper for testing Split()
 func expectMatchingSlices(t *testing.T, desc, str string, delim interface{}, expected []string, limit ...int) {

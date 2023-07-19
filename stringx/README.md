@@ -318,6 +318,44 @@ Squeeze("  now   is  the", "m-z")      // " now is the"
 Squeeze("putters shoot balls", " ")    // "puters shot balls"
 ```
 
+### Tr
+
+Returns a copy of str with the characters in from_str replaced by the
+corresponding characters in to_str.  If to_str is shorter than from_str,
+it is padded with its last character in order to maintain the
+correspondence.
+
+```go
+Tr("hello", "el", "ip")        // "hippo"
+Tr("hello", "aeiou", "*")      // "h*ll*"
+Tr("hello", "aeiou", "AA*")    // "hAll*"
+```
+
+Both strings may use the c1-c2 notation to denote ranges of characters,
+and from_str may start with a ^, which denotes all characters except
+those listed.
+
+```go
+Tr("hello", "a-y", "b-z")     // "ifmmp"
+Tr("hello", "^aeiou", "*")    // "*e**o"
+```
+
+The backslash character \ can be used to escape ^ or - and is otherwise
+ignored unless it appears at the end of a range or the end of the
+from_str or to_str:
+
+```go
+Tr("hello^world", "\\^aeiou", "*") // "h*ll**w*rld"
+Tr("hello-world", "a\\-eo", "*")   // "h*ll**w*rld"
+
+Tr("hello\r\nworld", "\r", "")     // "hello\nworld"
+Tr("hello\r\nworld", "\\r", "")    // "hello\r\nwold"
+Tr("hello\r\nworld", "\\\r", "")   // "hello\nworld"
+
+Tr("X['\\b']", "X\\", "")          // "['b']"
+Tr("X['\\b']", "X-\\]", "")        // "'b'"
+```
+
 ## License
 
 This package is licensed under MIT.

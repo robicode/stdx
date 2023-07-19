@@ -729,6 +729,40 @@ func Squeeze(s string, other ...string) string {
 	return xstrings.Squeeze(s, pat)
 }
 
+// Returns a copy of str with the characters in from_str replaced by the
+// corresponding characters in to_str.  If to_str is shorter than from_str,
+// it is padded with its last character in order to maintain the
+// correspondence.
+//
+//	Tr("hello", "el", "ip")        // "hippo"
+//	Tr("hello", "aeiou", "*")      // "h*ll*"
+//	Tr("hello", "aeiou", "AA*")    // "hAll*"
+//
+// Both strings may use the c1-c2 notation to denote ranges of characters,
+// and from_str may start with a ^, which denotes all characters except
+// those listed.
+//
+//	Tr("hello", "a-y", "b-z")     // "ifmmp"
+//	Tr("hello", "^aeiou", "*")    // "*e**o"
+//
+// The backslash character \ can be used to escape ^ or - and is otherwise
+// ignored unless it appears at the end of a range or the end of the
+// from_str or to_str:
+//
+//	Tr("hello^world", "\\^aeiou", "*") // "h*ll**w*rld"
+//	Tr("hello-world", "a\\-eo", "*")   // "h*ll**w*rld"
+//
+//	Tr("hello\r\nworld", "\r", "")     // "hello\nworld"
+//	Tr("hello\r\nworld", "\\r", "")    // "hello\r\nwold"
+//	Tr("hello\r\nworld", "\\\r", "")   // "hello\nworld"
+//
+//	Tr("X['\\b']", "X\\", "")          // "['b']"
+//	Tr("X['\\b']", "X-\\]", "")        // "'b'"
+func Tr(str, from, to string) string {
+	tr := xstrings.NewTranslator(from, to)
+	return tr.Translate(str)
+}
+
 // getSplitType determines the type of split to perform.
 func getSplitType(pattern interface{}, defaultType splitType) splitType {
 	if pattern == nil {
@@ -824,35 +858,4 @@ func reSplit(s string, re *regexp.Regexp, n int) []string {
 	}
 
 	return strings
-}
-
-// Decodes str (which may contain binary data) according to the
-// format string, returning an array of each value extracted. The format
-// string consists of a sequence of single-character directives, summarized
-// in the table at the end of this entry. Each directive may be followed by
-// a number, indicating the number of times to repeat with this directive.
-// An asterisk (“*”) will use up all remaining elements. The directives
-// sSiIlL may each be followed by an underscore (“_”) or exclamation mark
-// (“!”) to use the underlying platform's native size for the specified
-// type; otherwise, it uses a platform-independent consistent size. Spaces
-// are ignored in the format string.
-//
-// Note that unlike the Ruby version of this function, this function always returns
-// a slice of []string, because as far as I know Go does not support variable types
-// in the same slice.
-//
-//	Unpack("abc \0\0abc \0\0", "A6Z6")          // []string{"abc", "abc "}
-//	Unpack("abc \0\0", "a3a3")                  // []string{"abc", " \000\000"}
-//	Unpack("abc \0abc \0", "Z*Z*")              // []string{"abc ", "abc "}
-//	Unpack("aa", "b8B8")                        // []string{"10000110", "01100001"}
-//	Unpack("aaa", "h2H2c")                      // []string{"16", "61", "97"}
-//	Unpack("\xfe\xff\xfe\xff", "sS")            // []string{"-2", "65534"}
-//	Unpack("now=20is", "M*")                    // []string{"now is"}
-//	Unpack("whole", "xax2aX2aX1aX2a")           // []string{"h", "e", "l", "l", "o"}
-//
-// The README for this package summarizes the various formats. Note that unlike the Ruby
-// version of this function, we always return a slice of []string, because as far as I know
-// Go does not support multiple variable types in the same slice.
-func Unpack(str, format string) []string {
-	return nil
 }
