@@ -3,6 +3,7 @@ package stringx
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -151,6 +152,20 @@ func Test_EachRune(t *testing.T) {
 	})
 	if out != "hello" {
 		t.Errorf("expected 'hello' but got '%s'", out)
+	}
+}
+
+func Test_Gsub(t *testing.T) {
+	if result := Gsub("hello", regexp.MustCompile(`[aeiou]`), "*"); result != "h*ll*" {
+		t.Errorf("expected '%s' but got '%s'", "h*ll*", result)
+	}
+	if result := Gsub("hello", regexp.MustCompile(`([aeiou])`), `<\1>`); result != "h<e>ll<o>" {
+		t.Errorf("expected '%s' but got '%s'", "h<e>ll<o>", result)
+	}
+	if result := Gsub("hello", regexp.MustCompile(`.`), func(s string) string {
+		return strconv.Itoa(Ord(s)) + " "
+	}); result != "104 101 108 108 111 " {
+		t.Errorf("expected '%s' but got '%s'", "104 101 108 108 111 ", result)
 	}
 }
 

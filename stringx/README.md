@@ -126,7 +126,7 @@ index as UTF-8 runes may span multiple bytes.
 
 ### FormatStrings
 
-FormatStrings takes a []string and returns a string similar to that
+`FormatStrings` takes a []string and returns a string similar to that
 returned by `fmt.Println([]string{...})`, but with each element quoted for
 readability.
 
@@ -138,6 +138,27 @@ fmt.PrintLn(slice)                   // [one two three four ]
 
 // With FormatStrings:
 fmt.Println(FormatStrings(slice))    // ["one", "two", "three", "four "]
+```
+
+### Gsub
+
+`Gsub` Returns a copy of str with all occurrences of
+pattern substituted for the second argument. The
+pattern is typically a Regexp; if given as a String, any
+regular expression metacharacters it contains will be interpreted
+literally, e.g. \d will match a backslash followed by 'd', instead of a
+digit.
+
+If replacement is a string it will be substituted for the matched text.
+It may contain back-references to the pattern's capture groups of the
+form `\d`, where d is a group number. Unlike in Ruby, `\k` is unsupported.
+
+```go
+GSub("hello", regexp.MustCompile(`[aeiou]`), "*")                 // "h*ll*"
+GSub("hello", regexp.MustCompile(`([aeiou])`), "<\1>")            // "h<e>ll<o>"
+GSub("hello", regexp.MustCompile(`.`), func(s string) string {    // "104 101 108 108 111 "
+	return strconv.Itoa(Ord(s)) + " "
+})
 ```
 
 ### Insert

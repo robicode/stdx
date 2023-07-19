@@ -2,7 +2,9 @@ package stringx
 
 import (
 	"fmt"
+	"log"
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -242,6 +244,94 @@ func FormatStrings(arr []string) string {
 	return s
 }
 
+// Gsub Returns a copy of str with all occurrences of
+// pattern substituted for the second argument. The
+// pattern is typically a Regexp; if given as a String, any
+// regular expression metacharacters it contains will be interpreted
+// literally, e.g. \d will match a backslash followed by 'd', instead of a
+// digit.
+//
+// If replacement is a String it will be substituted for the matched text.
+// It may contain back-references to the pattern's capture groups of the
+// form \d, where d is a group number. Unlike in Ruby, \k is unsupported.
+//
+//	GSub("hello", regexp.MustCompile(`[aeiou]`), "*")                 // "h*ll*"
+//	GSub("hello", regexp.MustCompile(`([aeiou])`), "<\1>")            // "h<e>ll<o>"
+//	GSub("hello", regexp.MustCompile(`.`), func(s string) string {    // "104 101 108 108 111 "
+//		return strconv.Itoa(Ord(s)) + " "
+//	})
+func Gsub(orig string, match, replacer interface{}) string {
+	// prepare source
+	var source [][]string
+	if val, ok := match.(*regexp.Regexp); ok {
+		if !val.MatchString(orig) {
+			return orig
+		}
+		m := val.FindAllStringSubmatch(orig, -1)
+		source = m
+	}
+	if val, ok := match.(string); ok {
+		s := strings.Split(val, "|")
+		for _, v := range s {
+			source = append(source, []string{v})
+		}
+	}
+
+	// prepare replace
+	if val, ok := replacer.(string); ok {
+		var rplr []string
+		for i, v := range val {
+			if v == '\\' {
+				r := []rune{v}
+				for j := i + 1; j < len(val); j++ {
+					if !unicode.IsDigit([]rune(val)[j]) {
+						break
+					}
+					r = append(r, []rune(val)[j])
+				}
+				rplr = append(rplr, string(r))
+			}
+		}
+
+		// actual replace
+		for i, v := range source {
+			r := val
+			for _, v1 := range rplr {
+				idxStr := strings.TrimPrefix(v1, "\\")
+				idx, _ := strconv.Atoi(idxStr)
+				if idx > len(v)-1 {
+					err := fmt.Errorf("%d is greater than %d, over-capacity", idx+i, len(v)-1)
+					log.Printf("GSub: %s", err)
+					// panic(err)
+					continue
+				}
+				r = strings.Replace(r, v1, v[idx], 1)
+			}
+			orig = strings.Replace(orig, v[0], r, 1)
+		}
+
+		return orig
+	}
+
+	if val, ok := replacer.(func(s string) string); ok {
+		for _, v := range source {
+			orig = strings.Replace(orig, v[0], val(v[0]), 1)
+		}
+	}
+
+	if val, ok := replacer.(map[string]string); ok {
+		for _, v := range source {
+			if val1, ok := val[v[0]]; ok {
+				orig = strings.Replace(orig, v[0], val1, 1)
+			} else {
+				orig = strings.Replace(orig, v[0], "", 1)
+			}
+		}
+	}
+
+	return orig
+}
+
 // Insert Inserts the given other string into str; returns the new string.
 //
 // If the Integer index is positive or zero, inserts other at offset index:
@@ -377,6 +467,11 @@ func MatchingStringsets(a, b interface{}) bool {
 		return true
 	}
 	panic("unknown slice types")
+}
+
+// Ord returns the Integer ordinal of a one-character string.
+func Ord(str string) int {
+	return int(str[0])
 }
 
 // Partition Searches sep or pattern (regexp) in the string and
