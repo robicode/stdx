@@ -93,6 +93,19 @@ func Chomp(str string, separator ...string) string {
 	return stringutil.Chomp(str, sep)
 }
 
+// Chop returns a new String with the last character removed.  If the string
+// ends with \r\n, both characters are removed. Applying chop to an empty
+// string returns an empty string.
+//
+//	Chop("string\r\n")        // "string"
+//	Chop("string\n\r")        // "string\n"
+//	Chop("string\n")          // "string"
+//	Chop("string")            // "strin"
+//	Chop(Chop("x"))           // ""
+func Chop(str string) string {
+	return stringutil.Chop(str)
+}
+
 // Chr returns a string containing the first rune of str.
 //
 //	Chr("foo")    // "f"
@@ -502,6 +515,14 @@ func Partition(str string, pat interface{}) []string {
 		return []string{str[:idx], match, str[idx+len(match):]}
 	}
 	return nil
+}
+
+// Reverse returns a new string with the characters from str in reverse
+// order.
+//
+//	Reverse("stressed")        // "desserts"
+func Reverse(str string) string {
+	return stringutil.Reverse(str)
 }
 
 // Both forms iterate through str, matching the pattern (which may be

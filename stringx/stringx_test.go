@@ -80,6 +80,24 @@ func Test_Chomp(t *testing.T) {
 	}
 }
 
+func Test_Chop(t *testing.T) {
+	if result := Chop("string\r\n"); result != "string" {
+		t.Errorf("expected result to be '%s' but was '%s'", "string", result)
+	}
+	if result := Chop("string\n\r"); result != "string\n" {
+		t.Errorf("expected result to be '%s' but was '%s'", "string\n", result)
+	}
+	if result := Chop("string\n"); result != "string" {
+		t.Errorf("expected result to be '%s' but was '%s'", "string", result)
+	}
+	if result := Chop("string"); result != "strin" {
+		t.Errorf("expected result to be '%s' but was '%s'", "strin", result)
+	}
+	if result := Chop(Chop("x")); result != "" {
+		t.Errorf("expected result to be '%s' but was '%s'", "", result)
+	}
+}
+
 func Test_Count(t *testing.T) {
 	str := "hello world"
 	if Count(str, "lo") != 5 {
@@ -205,6 +223,15 @@ func Test_InsertRunes(t *testing.T) {
 	}
 }
 
+func Test_Ord(t *testing.T) {
+	if result := Ord("a"); result != 97 {
+		t.Errorf("expected result to be %d but was %d", 97, result)
+	}
+	if result := Ord("g"); result != 103 {
+		t.Errorf("expected result to be %d but was %d", 103, result)
+	}
+}
+
 func Test_Partition(t *testing.T) {
 	if result := Partition("hello", "l"); !MatchingStringsets(result, []string{"he", "l", "lo"}) {
 		t.Errorf("expected result to be [\"he\", \"l\", \"lo\"], but was %s", FormatStrings(result))
@@ -214,6 +241,12 @@ func Test_Partition(t *testing.T) {
 	}
 	if result := Partition("hello", regexp.MustCompile(`.l`)); !MatchingStringsets(result, []string{"h", "el", "lo"}) {
 		t.Errorf("expected result to be [\"h\", \"el\", \"lo\"], but was %s", FormatStrings(result))
+	}
+}
+
+func Test_Reverse(t *testing.T) {
+	if result := Reverse("stressed"); result != "desserts" {
+		t.Errorf("expected '%s' but got '%s'", "desserts", result)
 	}
 }
 

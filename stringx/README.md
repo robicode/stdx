@@ -54,6 +54,18 @@ Chomp("hello\r\n\r\n", "")   // "hello"
 Chomp("hello\r\n\r\r\n", "") // "hello\r\n\r"
 ```
 
+### Chop
+
+`Chop` returns a new String with the last character removed. If the string ends with \r\n, both characters are removed. Applying `Chop` to an empty string returns an empty string.
+
+```go
+Chop("string\r\n")        // "string"
+Chop("string\n\r")        // "string\n"
+Chop("string\n")          // "string"
+Chop("string")            // "strin"
+Chop(Chop("x"))           // ""
+```
+
 ### Chr
 
 Chr returns a string containing the first rune of str.
@@ -209,6 +221,10 @@ InsertRunes(str, 5, ',', ' ')                 // "hello, world"
 
 IsASCII returns true if s consists entirely of ASCII characters. Pulled straight from stdlib and exported.
 
+### Ord
+
+Ord returns the Integer ordinal of a one-character string.
+
 ### Partition
 
 Partition Searches sep or pattern (regexp) in the string and
@@ -219,6 +235,15 @@ not found, returns two empty strings and str.
 Partition("hello", "l")                      // []string{"he", "l", "lo"}
 Partition("hello", "x")                      // []string{"hello", "", ""}
 Partition("hello", regexp.MustCompile(`.l`)) // []string{"h", "el", "lo"}
+```
+
+### Reverse
+
+Reverse returns a new string with the characters from str in reverse
+order.
+
+```go
+Reverse("stressed")        // "desserts"
 ```
 
 ### Scan
