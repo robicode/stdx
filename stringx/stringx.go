@@ -525,6 +525,92 @@ func Reverse(str string) string {
 	return stringutil.Reverse(str)
 }
 
+// Returns the Integer index of the last occurrence of the given
+// substring, or -1 if none found:
+//
+//	Rindex("foo", "f")        // 0
+//	Rindex("foo", "o")        // 2
+//	Rindex("foo", "oo")       // 1
+//	Rindex("foo", "ooo")      // -1
+//
+// Returns the Integer index of the last match for the given *Regexp
+// or -1 if none found:
+//
+//	Rindex("foo", regexp.MustCompile(`f`))        // 0
+//	Rindex("foo", regexp.MustCompile(`o`))        // 2
+//	Rindex("foo", regexp.MustCompile(`oo`))       // 1
+//	Rindex("foo", regexp.MustCompile(`ooo`))      // -1
+//
+// Integer argument offset, if given and non-negative, specifies the
+// maximum starting position in the string to _end_ the search:
+//
+//	Rindex("foo", "o", 0)        // -1
+//	Rindex("foo", "o", 1)        // 1
+//	Rindex("foo", "o", 2)        // 2
+//	Rindex("foo", "o", 3)        // 2
+//
+// If offset is a negative Integer, the maximum starting position in the
+// string to end the search is the sum of the string's length and
+// offset:
+//
+//	Rindex("foo", "o", -1)        // 2
+//	Rindex("foo", "o", -2)        // 1
+//	Rindex("foo", "o", -3)        // -1
+//	Rindex("foo", "o", -4)        // -1
+//
+// If str or sub is empty or nil, or if sub is not a string or
+// *regexp.Regexp, Rindex will return -1.
+func Rindex(str string, sub interface{}, offset ...int) int {
+	var ofs int
+	sLen := utf8.RuneCountInString(str)
+	if sLen == 0 {
+		return -1
+	}
+	if offset == nil || len(offset) == 0 {
+		ofs = sLen
+	} else {
+		if offset[0] > sLen {
+			ofs = sLen
+		} else {
+			ofs = offset[0]
+		}
+		if offset[0] < 0 {
+			ofs = sLen + offset[0]
+		}
+	}
+	if substr, ok := sub.(string); ok {
+		indicies := regexp.MustCompile(regexp.QuoteMeta(substr)).FindAllStringIndex(str, -1)
+		if indicies == nil {
+			return -1
+		}
+		i := len(indicies) - 1
+		for i >= 0 {
+			idx := indicies[i][0]
+			if idx > ofs {
+				i--
+				continue
+			}
+			return idx
+		}
+	}
+	if expr, ok := sub.(*regexp.Regexp); ok {
+		indicies := expr.FindAllStringIndex(str, -1)
+		if indicies == nil {
+			return -1
+		}
+		i := len(indicies) - 1
+		for i >= 0 {
+			idx := indicies[i][0]
+			if idx > ofs {
+				i--
+				continue
+			}
+			return idx
+		}
+	}
+	return -1
+}
+
 // Both forms iterate through str, matching the pattern (which may be
 // a *Regexp or a string). For each match, a result is generated and either
 // added to the result array or passed to the function. If the pattern
@@ -877,6 +963,68 @@ func Squeeze(s string, other ...string) string {
 func Tr(str, from, to string) string {
 	tr := xstrings.NewTranslator(from, to)
 	return tr.Translate(str)
+}
+
+// Truncate truncates a given str after a given length if str is longer than length:
+//
+//	Truncate("Once upon a time in a world far far away", 27)             // "Once upon a time in a wo..."
+//
+// Pass a string or *Regexp separator to truncate str at a natural break:
+//
+//	Truncate("Once upon a time in a world far far away", 27, "...", " ") // "Once upon a time in a..."
+//
+//	Truncate("Once upon a time in a world far far away", 27, "...", regexp.MustCompile(`\s`))
+//	  // "Once upon a time in a..."
+//
+// The last characters will be replaced with the :omission string (defaults to "...")
+// for a total length not exceeding length:
+//
+//	Truncate("And they found that many people were sleeping better.", 25, "... (continued)")
+//	  // "And they f... (continued)"
+func Truncate(str string, length int, options ...interface{}) string {
+	sLen := utf8.RuneCountInString(str)
+	if sLen <= length {
+		return str
+	}
+
+	var (
+		indicator string
+		out       []byte
+		separator interface{}
+		stop      int
+	)
+
+	if options == nil || len(options) == 0 {
+		indicator = "..."
+	} else {
+		if omission, ok := options[0].(string); ok {
+			indicator = omission
+		} else {
+			indicator = "..."
+		}
+	}
+	if len(options) == 2 {
+		separator = options[1]
+	}
+	lengthWithRoomForOmission := length - utf8.RuneCountInString(indicator)
+
+	if separator != nil {
+		stop = Rindex(str, separator, lengthWithRoomForOmission)
+		if stop == -1 {
+			stop = lengthWithRoomForOmission
+		}
+	} else {
+		stop = lengthWithRoomForOmission
+	}
+
+	for i, r := range str {
+		if i == stop {
+			break
+		}
+		out = utf8.AppendRune(out, r)
+	}
+	out = append(out, []byte(indicator)...)
+	return string(out)
 }
 
 // getSplitType determines the type of split to perform.

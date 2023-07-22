@@ -246,6 +246,52 @@ order.
 Reverse("stressed")        // "desserts"
 ```
 
+### Rindex
+
+Returns the Integer index of the last occurrence of the given
+substring, or -1 if none found:
+
+```go
+Rindex("foo", "f")        // 0
+Rindex("foo", "o")        // 2
+Rindex("foo", "oo")       // 1
+Rindex("foo", "ooo")      // -1
+```
+
+ Returns the Integer index of the last match for the given *Regexp
+ or -1 if none found:
+
+```go
+Rindex("foo", regexp.MustCompile(`f`))        // 0
+Rindex("foo", regexp.MustCompile(`o`))        // 2
+Rindex("foo", regexp.MustCompile(`oo`))       // 1
+Rindex("foo", regexp.MustCompile(`ooo`))      // -1
+```
+
+Integer argument offset, if given and non-negative, specifies the
+maximum starting position in the string to _end_ the search:
+
+```go
+Rindex("foo", "o", 0)        // -1
+Rindex("foo", "o", 1)        // 1
+Rindex("foo", "o", 2)        // 2
+Rindex("foo", "o", 3)        // 2
+```
+
+If offset is a negative Integer, the maximum starting position in the
+string to end the search is the sum of the string's length and
+offset:
+
+```go
+Rindex("foo", "o", -1)        // 2
+Rindex("foo", "o", -2)        // 1
+Rindex("foo", "o", -3)        // -1
+Rindex("foo", "o", -4)        // -1
+```
+
+If `str` or sub is empty or nil, or if `sub` is not a string or
+`*regexp.Regexp`, Rindex will return -1.
+
 ### Scan
 
 Both forms iterate through str, matching the pattern (which may be
@@ -400,6 +446,33 @@ Tr("hello\r\nworld", "\\\r", "")   // "hello\nworld"
 
 Tr("X['\\b']", "X\\", "")          // "['b']"
 Tr("X['\\b']", "X-\\]", "")        // "'b'"
+```
+
+### Truncate
+
+Truncate truncates a given str after a given length if str is longer than length:
+
+```go
+Truncate("Once upon a time in a world far far away", 27)             // "Once upon a time in a wo..."
+```
+
+Pass a string or *Regexp separator to truncate str at a natural break:
+
+```go
+Truncate("Once upon a time in a world far far away", 27, "...", " ") // "Once upon a time in a..."
+```
+
+```go
+Truncate("Once upon a time in a world far far away", 27, "...", regexp.MustCompile(`\s`))
+  // "Once upon a time in a..."
+```
+
+The last characters will be replaced with the :omission string (defaults to "...")
+for a total length not exceeding length:
+
+```go
+Truncate("And they found that many people were sleeping better.", 25, "... (continued)")
+  // "And they f... (continued)"
 ```
 
 ## License

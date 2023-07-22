@@ -250,6 +250,87 @@ func Test_Reverse(t *testing.T) {
 	}
 }
 
+func Test_Rindex(t *testing.T) {
+	if result := Rindex("foo", "f"); result != 0 {
+		t.Errorf("expected %d but got %d", 0, result)
+	}
+	if result := Rindex("foo", "o"); result != 2 {
+		t.Errorf("expected %d but got %d", 2, result)
+	}
+	if result := Rindex("foo", "oo"); result != 1 {
+		t.Errorf("expected %d but got %d", 1, result)
+	}
+	if result := Rindex("foo", "ooo"); result != -1 {
+		t.Errorf("expected %d but got %d", -1, result)
+	}
+
+	if result := Rindex("foo", regexp.MustCompile(`f`)); result != 0 {
+		t.Errorf("expected %d but got %d", 0, result)
+	}
+	if result := Rindex("foo", regexp.MustCompile(`o`)); result != 2 {
+		t.Errorf("expected %d but got %d", 2, result)
+	}
+	if result := Rindex("foo", regexp.MustCompile(`oo`)); result != 1 {
+		t.Errorf("expected %d but got %d", 1, result)
+	}
+	if result := Rindex("foo", regexp.MustCompile(`ooo`)); result != -1 {
+		t.Errorf("expected %d but got %d", -1, result)
+	}
+
+	if result := Rindex("foo", "o", 0); result != -1 {
+		t.Errorf("expected %d but got %d", -1, result)
+	}
+	if result := Rindex("foo", "o", 1); result != 1 {
+		t.Errorf("expected %d but got %d", 1, result)
+	}
+	if result := Rindex("foo", "o", 2); result != 2 {
+		t.Errorf("expected %d but got %d", 2, result)
+	}
+	if result := Rindex("foo", "o", 3); result != 2 {
+		t.Errorf("expected %d but got %d", 2, result)
+	}
+
+	if result := Rindex("foo", "o", -1); result != 2 {
+		t.Errorf("expected %d but got %d", 2, result)
+	}
+	if result := Rindex("foo", "o", -2); result != 1 {
+		t.Errorf("expected %d but got %d", 1, result)
+	}
+	if result := Rindex("foo", "o", -3); result != -1 {
+		t.Errorf("expected %d but got %d", -1, result)
+	}
+	if result := Rindex("foo", "o", -4); result != -1 {
+		t.Errorf("expected %d but got %d", -1, result)
+	}
+
+	// Testing regexps with offsets
+	if result := Rindex("foo", regexp.MustCompile(`o`), 0); result != -1 {
+		t.Errorf("expected %d but got %d", -1, result)
+	}
+	if result := Rindex("foo", regexp.MustCompile(`o`), 1); result != 1 {
+		t.Errorf("expected %d but got %d", 1, result)
+	}
+	if result := Rindex("foo", regexp.MustCompile(`o`), 2); result != 2 {
+		t.Errorf("expected %d but got %d", 2, result)
+	}
+	if result := Rindex("foo", regexp.MustCompile(`o`), 3); result != 2 {
+		t.Errorf("expected %d but got %d", 2, result)
+	}
+
+	if result := Rindex("foo", regexp.MustCompile(`o`), -1); result != 2 {
+		t.Errorf("expected %d but got %d", 2, result)
+	}
+	if result := Rindex("foo", regexp.MustCompile(`o`), -2); result != 1 {
+		t.Errorf("expected %d but got %d", 1, result)
+	}
+	if result := Rindex("foo", regexp.MustCompile(`o`), -3); result != -1 {
+		t.Errorf("expected %d but got %d", -1, result)
+	}
+	if result := Rindex("foo", regexp.MustCompile(`o`), -4); result != -1 {
+		t.Errorf("expected %d but got %d", -1, result)
+	}
+}
+
 func Test_Scan(t *testing.T) {
 	a := "cruel world"
 	if value, ok := Scan(a, regexp.MustCompile(`\w+`)).([]string); !ok {
@@ -432,6 +513,21 @@ func Test_Tr(t *testing.T) {
 	}
 	if result := Tr("X['\\b']", "X-\\]", ""); result != "'b'" {
 		t.Errorf("expected '%s' but got '%s'", "'b'", result)
+	}
+}
+
+func Test_Truncate(t *testing.T) {
+	if result := Truncate("Once upon a time in a world far far away", 27); result != "Once upon a time in a wo..." {
+		t.Errorf("expected '%s' (%d), got '%s' (%d)", "Once upon a time in a wo...", len("Once upon a time in a wo..."), result, len(result))
+	}
+	if result := Truncate("Once upon a time in a world far far away", 27, "...", " "); result != "Once upon a time in a..." {
+		t.Errorf("expected '%s' (%d), got '%s' (%d)", "Once upon a time in a...", len("Once upon a time in a..."), result, len(result))
+	}
+	if result := Truncate("Once upon a time in a world far far away", 27, "...", regexp.MustCompile(`\s`)); result != "Once upon a time in a..." {
+		t.Errorf("expected '%s' (%d), got '%s' (%d)", "Once upon a time in a...", len("Once upon a time in a..."), result, len(result))
+	}
+	if result := Truncate("And they found that many people were sleeping better.", 25, "... (continued)"); result != "And they f... (continued)" {
+		t.Errorf("expected '%s' (%d), got '%s' (%d)", "And they f... (continued)", len("And they f... (continued)"), result, len(result))
 	}
 }
 
