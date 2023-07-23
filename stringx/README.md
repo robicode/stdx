@@ -173,6 +173,54 @@ GSub("hello", regexp.MustCompile(`.`), func(s string) string {    // "104 101 10
 })
 ```
 
+### Index
+
+Returns the integer index of the first match for the given argument, or
+-1 if none found; the search of str is forward, and begins at position
+offset (in runes).
+
+When sub is a string, returns the index of the first matching
+substring in str:
+
+```go
+Index("foo", "f")        // 0
+Index("foo", "o")        // 1
+Index("foo", "oo")       // 1
+Index("foo", "ooo")      // -1
+Index("recr", "c")       // 2
+Index("こんにちは", "ち") // 3
+```
+
+When sub is a *regexp.Regexp, returns the index of the first match
+str:
+
+```go
+Index("foo", regexp.MustCompile(`o.`))         // 1
+Index("foo", regexp.MustCompile(`.o`))         // 0
+```
+
+With positive integer offset, begins the search at position offset:
+
+```go
+Index("foo", "o", 1)        // 1
+Index("foo", "o", 2)        // 2
+Index("foo", "o", 3)        // -1
+Index("recr", "c", 1)       // 2
+Index("こんにちは", "ち", 2) // 3
+```
+
+With negative integer offset, selects the search position by counting
+backward from the end of str:
+
+```go
+Index("foo", "o", -1)        // 2
+Index("foo", "o", -2)        // 1
+Index("foo", "o", -3)        // 1
+Index("foo", "o", -4)        // -1
+Index("foo", regexp.MustCompile(`o.`), -2) // 1
+Index("foo", regexp.MustCompile(`.o`), -2) // 1
+```
+
 ### Insert
 
 `Insert` Inserts the given `other` string into `str`; returns the new string.

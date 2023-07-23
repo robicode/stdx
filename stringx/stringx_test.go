@@ -187,6 +187,69 @@ func Test_Gsub(t *testing.T) {
 	}
 }
 
+func Test_Index(t *testing.T) {
+	if result := Index("foo", "f"); result != 0 {
+		t.Errorf("expected %d, got %d", 0, result)
+	}
+	if result := Index("foo", "o"); result != 1 {
+		t.Errorf("expected %d, got %d", 1, result)
+	}
+	if result := Index("foo", "oo"); result != 1 {
+		t.Errorf("expected %d, got %d", 1, result)
+	}
+	if result := Index("foo", "ooo"); result != -1 {
+		t.Errorf("expected %d, got %d", -1, result)
+	}
+	if result := Index("recr", "c"); result != 2 {
+		t.Errorf("expected %d, got %d", 2, result)
+	}
+	if result := Index("こんにちは", "ち"); result != 3 {
+		t.Errorf("expected %d, got %d", 3, result)
+	}
+
+	if result := Index("foo", regexp.MustCompile(`o.`)); result != 1 {
+		t.Errorf("expected %d, got %d", 1, result)
+	}
+	if result := Index("foo", regexp.MustCompile(`.o`)); result != 0 {
+		t.Errorf("expected %d, got %d", 0, result)
+	}
+
+	if result := Index("foo", "o", 1); result != 1 {
+		t.Errorf("expected %d, got %d", 1, result)
+	}
+	if result := Index("foo", "o", 2); result != 2 {
+		t.Errorf("expected %d, got %d", 2, result)
+	}
+	if result := Index("foo", "o", 3); result != -1 {
+		t.Errorf("expected %d, got %d", -1, result)
+	}
+	if result := Index("recr", "c", 1); result != 2 {
+		t.Errorf("expected %d, got %d", 2, result)
+	}
+	if result := Index("こんにちは", "ち", 2); result != 3 {
+		t.Errorf("expected %d, got %d", 3, result)
+	}
+
+	if result := Index("foo", "o", -1); result != 2 {
+		t.Errorf("expected %d, got %d", 2, result)
+	}
+	if result := Index("foo", "o", -2); result != 1 {
+		t.Errorf("expected %d, got %d", 1, result)
+	}
+	if result := Index("foo", "o", -3); result != 1 {
+		t.Errorf("expected %d, got %d", 1, result)
+	}
+	if result := Index("foo", "o", -4); result != -1 {
+		t.Errorf("expected %d, got %d", -1, result)
+	}
+	if result := Index("foo", regexp.MustCompile(`o.`), -2); result != 1 {
+		t.Errorf("expected %d, got %d", 1, result)
+	}
+	if result := Index("foo", regexp.MustCompile(`.o`), -2); result != 1 {
+		t.Errorf("expected %d, got %d", 1, result)
+	}
+}
+
 func Test_Insert(t *testing.T) {
 	if result := Insert("foo", 1, "bar"); result != "fbaroo" {
 		t.Errorf("expected '%s' but got '%s'", "fbaroo", result)

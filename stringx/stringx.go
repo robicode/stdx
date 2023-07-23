@@ -345,6 +345,94 @@ func Gsub(orig string, match, replacer interface{}) string {
 	return orig
 }
 
+// Returns the integer index of the first match for the given argument, or
+// -1 if none found; the search of str is forward, and begins at position
+// offset (in runes).
+//
+// When sub is a string, returns the index of the first matching
+// substring in str:
+//
+//	Index("foo", "f")        // 0
+//	Index("foo", "o")        // 1
+//	Index("foo", "oo")       // 1
+//	Index("foo", "ooo")      // -1
+//	Index("recr", "c")       // 2
+//	Index("こんにちは", "ち") // 3
+//
+// When sub is a *regexp.Regexp, returns the index of the first match
+// str:
+//
+//	Index("foo", regexp.MustCompile(`o.`))         // 1
+//	Index("foo", regexp.MustCompile(`.o`))         // 0
+//
+// With positive integer offset, begins the search at position offset:
+//
+//	Index("foo", "o", 1)        // 1
+//	Index("foo", "o", 2)        // 2
+//	Index("foo", "o", 3)        // -1
+//	Index("recr", "c", 1)       // 2
+//	Index("こんにちは", "ち", 2) // 3
+//
+// With negative integer offset, selects the search position by counting
+// backward from the end of str:
+//
+//	Index("foo", "o", -1)        // 2
+//	Index("foo", "o", -2)        // 1
+//	Index("foo", "o", -3)        // 1
+//	Index("foo", "o", -4)        // -1
+//	Index("foo", regexp.MustCompile(`o.`), -2) // 1
+//	Index("foo", regexp.MustCompile(`.o`), -2) // 1
+func Index(str string, sub interface{}, offset ...int) int {
+	var off int = 0
+	if len(offset) > 0 {
+		off = offset[0]
+	}
+	runes := utf8.RuneCountInString(str)
+	if runes == 0 {
+		return -1
+	}
+	if off > runes {
+		off = runes
+	}
+	if off < 0 {
+		off = runes + off
+		if off < 0 {
+			return -1
+		}
+	}
+
+	var startByte int = 0
+
+	for i := 0; i < off; i++ {
+		_, rsz := utf8.DecodeRuneInString(str[startByte:])
+		startByte += rsz
+	}
+
+	var indicies [][]int
+
+	if substr, ok := sub.(string); ok {
+		indicies = regexp.MustCompile(regexp.QuoteMeta(substr)).FindAllStringIndex(str[startByte:], -1)
+	}
+	if re, ok := sub.(*regexp.Regexp); ok {
+		indicies = re.FindAllStringIndex(str[startByte:], -1)
+	}
+	if indicies == nil {
+		return -1
+	}
+	i := 0
+	for i <= len(indicies)-1 {
+		idx := indicies[i][0] + startByte
+		if idx < off {
+			i++
+			continue
+		}
+		idx = RuneIndexFromStartByte(str, idx)
+		return idx
+	}
+	log.Println("Loop fell through")
+	return -1
+}
+
 // Insert Inserts the given other string into str; returns the new string.
 //
 // If the Integer index is positive or zero, inserts other at offset index:
@@ -561,52 +649,54 @@ func Reverse(str string) string {
 // If str or sub is empty or nil, or if sub is not a string or
 // *regexp.Regexp, Rindex will return -1.
 func Rindex(str string, sub interface{}, offset ...int) int {
-	var ofs int
-	sLen := utf8.RuneCountInString(str)
-	if sLen == 0 {
+	var off int
+	if len(offset) > 0 {
+		off = offset[0]
+	}
+	runes := utf8.RuneCountInString(str)
+	if runes == 0 {
 		return -1
 	}
 	if offset == nil || len(offset) == 0 {
-		ofs = sLen
-	} else {
-		if offset[0] > sLen {
-			ofs = sLen
-		} else {
-			ofs = offset[0]
-		}
-		if offset[0] < 0 {
-			ofs = sLen + offset[0]
+		off = runes
+	}
+	if off > runes {
+		off = runes
+	}
+	if off < 0 {
+		off = runes + off
+		if off < 0 {
+			return -1
 		}
 	}
+
+	var endByte int = 0
+
+	for i := off; i >= 0; i-- {
+		_, rsz := utf8.DecodeRuneInString(str[:endByte])
+		endByte += rsz
+	}
+
+	var indicies [][]int
+
 	if substr, ok := sub.(string); ok {
-		indicies := regexp.MustCompile(regexp.QuoteMeta(substr)).FindAllStringIndex(str, -1)
-		if indicies == nil {
-			return -1
-		}
-		i := len(indicies) - 1
-		for i >= 0 {
-			idx := indicies[i][0]
-			if idx > ofs {
-				i--
-				continue
-			}
-			return idx
-		}
+		indicies = regexp.MustCompile(regexp.QuoteMeta(substr)).FindAllStringIndex(str, -1)
 	}
-	if expr, ok := sub.(*regexp.Regexp); ok {
-		indicies := expr.FindAllStringIndex(str, -1)
-		if indicies == nil {
-			return -1
+	if re, ok := sub.(*regexp.Regexp); ok {
+		indicies = re.FindAllStringIndex(str, -1)
+	}
+	if indicies == nil {
+		return -1
+	}
+	i := len(indicies) - 1
+	for i >= 0 {
+		idx := indicies[i][0]
+		if idx > off {
+			i--
+			continue
 		}
-		i := len(indicies) - 1
-		for i >= 0 {
-			idx := indicies[i][0]
-			if idx > ofs {
-				i--
-				continue
-			}
-			return idx
-		}
+		idx = RuneIndexFromStartByte(str, idx)
+		return idx
 	}
 	return -1
 }
