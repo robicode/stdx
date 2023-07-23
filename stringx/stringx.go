@@ -670,13 +670,6 @@ func Rindex(str string, sub interface{}, offset ...int) int {
 		}
 	}
 
-	var endByte int = 0
-
-	for i := off; i >= 0; i-- {
-		_, rsz := utf8.DecodeRuneInString(str[:endByte])
-		endByte += rsz
-	}
-
 	var indicies [][]int
 
 	if substr, ok := sub.(string); ok {
