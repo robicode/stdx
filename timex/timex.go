@@ -107,22 +107,6 @@ func Within(t, start, end time.Time) bool {
 	return t.Before(end) && t.After(start)
 }
 
-// isBetween returns true if the given value falls between the given
-// ceiling and floor
-func isBetween(value, floor, ceil int, inclusive bool) bool {
-	if inclusive {
-		if value >= floor && value <= ceil {
-			return true
-		}
-	}
-
-	if value > floor && value < ceil {
-		return true
-	}
-
-	return false
-}
-
 // TimeAgoInWords is like DistanceOfTimeInWords, but
 // where to_time is fixed to time.Now().
 func TimeAgoInWords(from time.Time, includeSeconds bool) string {
